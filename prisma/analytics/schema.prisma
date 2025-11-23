@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../lib/generated/prisma-analytics"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://placeholder"
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  userId    String?
+  timestamp DateTime @default(now())
+  userAgent String?
+}
+
+model Event {
+  id         String   @id @default(cuid())
+  name       String
+  properties String?
+  timestamp  DateTime @default(now())
+}
+

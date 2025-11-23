@@ -12,7 +12,7 @@ RUN git clone https://github.com/gl-pgege/next-js-template.git . && \
 # Copy docker setup files
 COPY docker-setup /docker-setup
 
-# Run setup script to configure the blog schema
+# Run setup script to configure the mall-investment schema
 RUN chmod +x /docker-setup/setup.sh && \
     /docker-setup/setup.sh
 

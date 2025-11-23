@@ -1,0 +1,445 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../lib/generated/prisma-mall-investment"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://placeholder"
+}
+
+enum MallType {
+  Regional
+  Community
+  Lifestyle
+  Outlet
+  @@map("mall_type_enum")
+}
+
+enum OwnershipType {
+  REIT
+  Private
+  Partnership
+  @@map("ownership_type_enum")
+}
+
+enum LeaseStatus {
+  Active
+  Expired
+  Terminated
+  Pending
+  @@map("lease_status_enum")
+}
+
+enum PaymentStatus {
+  Paid
+  Partial
+  Late
+  Outstanding
+  @@map("payment_status_enum")
+}
+
+enum LoanType {
+  Mortgage
+  Construction
+  Bridge
+  Refinance
+  @@map("loan_type_enum")
+}
+
+enum InterestType {
+  Fixed
+  Variable
+  Hybrid
+  @@map("interest_type_enum")
+}
+
+enum LoanStatus {
+  Current
+  Watch
+  Default
+  Foreclosure
+  @@map("loan_status_enum")
+}
+
+enum MeasurementType {
+  Daily
+  Weekly
+  Monthly
+  @@map("measurement_type_enum")
+}
+
+enum InvestmentGrade {
+  A_PLUS
+  A
+  B_PLUS
+  B
+  C_PLUS
+  C
+  D
+  @@map("investment_grade_enum")
+}
+
+enum RecommendationType {
+  Buy
+  Hold
+  Sell
+  Refinance
+  @@map("recommendation_type_enum")
+}
+
+model Mall {
+  mallId                      String         @id @map("mall_id") @db.VarChar(20)
+  mallName                    String         @map("mall_name") @db.VarChar(200)
+  address                     String?        @db.VarChar(300)
+  city                        String?        @db.VarChar(100)
+  state                       String?        @db.VarChar(50)
+  zipCode                     String?        @map("zip_code") @db.VarChar(10)
+  country                     String         @default("USA") @db.VarChar(50)
+  totalSquareFeet             Decimal?       @map("total_square_feet") @db.Decimal(12, 2)
+  totalRetailUnits            Int?           @map("total_retail_units")
+  numberOfFloors              Int?           @map("number_of_floors")
+  parkingSpaces               Int?           @map("parking_spaces")
+  mallType                    MallType?      @map("mall_type")
+  yearBuilt                   Int?           @map("year_built")
+  yearRenovated               Int?           @map("year_renovated")
+  ownershipType               OwnershipType? @map("ownership_type")
+  acquisitionDate             DateTime?      @map("acquisition_date") @db.Date
+  acquisitionPrice            Decimal?       @map("acquisition_price") @db.Decimal(15, 2)
+  currentValuation            Decimal?       @map("current_valuation") @db.Decimal(15, 2)
+  propertyTaxAnnual           Decimal?       @map("property_tax_annual") @db.Decimal(12, 2)
+  insuranceAnnual             Decimal?       @map("insurance_annual") @db.Decimal(12, 2)
+  maintenanceReserveAnnual    Decimal?       @map("maintenance_reserve_annual") @db.Decimal(12, 2)
+  createdAt                   DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                   DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  leases            Lease[]
+  tenantSales       TenantSales[]
+  trafficData       TrafficData[]
+  occupancyHistory  OccupancyHistory[]
+  loans             Loan[]
+  operatingExpenses OperatingExpenses[]
+  marketData        MarketData[]
+  riskAssessments   RiskAssessment[]
+
+  @@map("malls")
+}
+
+model TenantCategory {
+  categoryId          String   @id @map("category_id") @db.VarChar(20)
+  categoryName        String   @map("category_name") @db.VarChar(100)
+  categoryDescription String?  @map("category_description") @db.Text
+  riskWeight          Decimal? @map("risk_weight") @db.Decimal(3, 2)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenants Tenant[]
+
+  @@map("tenant_categories")
+}
+
+model Tenant {
+  tenantId            String    @id @map("tenant_id") @db.VarChar(20)
+  tenantName          String    @map("tenant_name") @db.VarChar(200)
+  parentCompany       String?   @map("parent_company") @db.VarChar(200)
+  categoryId          String?   @map("category_id") @db.VarChar(20)
+  isAnchorTenant      Boolean   @default(false) @map("is_anchor_tenant")
+  isNationalChain     Boolean   @default(false) @map("is_national_chain")
+  creditRating        String?   @map("credit_rating") @db.VarChar(10)
+  yearsInBusiness     Int?      @map("years_in_business")
+  totalLocations      Int?      @map("total_locations")
+  corporateHeadquarters String? @map("corporate_headquarters") @db.VarChar(100)
+  contactEmail        String?   @map("contact_email") @db.VarChar(100)
+  contactPhone        String?   @map("contact_phone") @db.VarChar(20)
+  website             String?   @db.VarChar(200)
+  bankruptcyHistory   Boolean   @default(false) @map("bankruptcy_history")
+  bankruptcyDate      DateTime? @map("bankruptcy_date") @db.Date
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  category        TenantCategory? @relation(fields: [categoryId], references: [categoryId])
+  leases          Lease[]
+  tenantSales     TenantSales[]
+  tenantFinancials TenantFinancial[]
+
+  @@map("tenants")
+}
+
+model Lease {
+  leaseId                   String      @id @map("lease_id") @db.VarChar(20)
+  mallId                    String      @map("mall_id") @db.VarChar(20)
+  tenantId                  String      @map("tenant_id") @db.VarChar(20)
+  unitNumber                String?     @map("unit_number") @db.VarChar(20)
+  squareFeet                Decimal?    @map("square_feet") @db.Decimal(10, 2)
+  leaseStartDate            DateTime    @map("lease_start_date") @db.Date
+  leaseEndDate              DateTime    @map("lease_end_date") @db.Date
+  leaseTermMonths           Int?        @map("lease_term_months")
+  baseRentMonthly           Decimal?    @map("base_rent_monthly") @db.Decimal(12, 2)
+  percentageRentRate        Decimal?    @map("percentage_rent_rate") @db.Decimal(5, 4)
+  percentageRentThreshold   Decimal?    @map("percentage_rent_threshold") @db.Decimal(12, 2)
+  camChargesMonthly         Decimal?    @map("cam_charges_monthly") @db.Decimal(10, 2)
+  marketingFeeMonthly       Decimal?    @map("marketing_fee_monthly") @db.Decimal(8, 2)
+  propertyTaxMonthly        Decimal?    @map("property_tax_monthly") @db.Decimal(8, 2)
+  securityDeposit           Decimal?    @map("security_deposit") @db.Decimal(12, 2)
+  leaseStatus               LeaseStatus @map("lease_status")
+  renewalOptionYears        Int?        @map("renewal_option_years")
+  rentEscalationAnnualPct   Decimal?    @map("rent_escalation_annual_pct") @db.Decimal(5, 2)
+  earlyTerminationClause    Boolean     @default(false) @map("early_termination_clause")
+  coTenancyClause           Boolean     @default(false) @map("co_tenancy_clause")
+  salesReportingRequired    Boolean     @default(true) @map("sales_reporting_required")
+  createdAt                 DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                 DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  mall        Mall          @relation(fields: [mallId], references: [mallId])
+  tenant      Tenant        @relation(fields: [tenantId], references: [tenantId])
+  tenantSales TenantSales[]
+
+  @@index([mallId], map: "idx_leases_mall")
+  @@index([tenantId], map: "idx_leases_tenant")
+  @@index([leaseStatus], map: "idx_leases_status")
+  @@index([leaseEndDate], map: "idx_leases_end_date")
+  @@map("leases")
+}
+
+model TenantFinancial {
+  financialId              String    @id @map("financial_id") @db.VarChar(20)
+  tenantId                 String    @map("tenant_id") @db.VarChar(20)
+  fiscalYear               Int       @map("fiscal_year")
+  fiscalQuarter            Int?      @map("fiscal_quarter")
+  reportingPeriodStart     DateTime? @map("reporting_period_start") @db.Date
+  reportingPeriodEnd       DateTime? @map("reporting_period_end") @db.Date
+  totalRevenue             Decimal?  @map("total_revenue") @db.Decimal(15, 2)
+  grossProfit              Decimal?  @map("gross_profit") @db.Decimal(15, 2)
+  operatingIncome          Decimal?  @map("operating_income") @db.Decimal(15, 2)
+  netIncome                Decimal?  @map("net_income") @db.Decimal(15, 2)
+  ebitda                   Decimal?  @db.Decimal(15, 2)
+  totalAssets              Decimal?  @map("total_assets") @db.Decimal(15, 2)
+  totalLiabilities         Decimal?  @map("total_liabilities") @db.Decimal(15, 2)
+  currentRatio             Decimal?  @map("current_ratio") @db.Decimal(5, 2)
+  debtToEquityRatio        Decimal?  @map("debt_to_equity_ratio") @db.Decimal(5, 2)
+  interestCoverageRatio    Decimal?  @map("interest_coverage_ratio") @db.Decimal(5, 2)
+  cashOnHand               Decimal?  @map("cash_on_hand") @db.Decimal(15, 2)
+  inventoryValue           Decimal?  @map("inventory_value") @db.Decimal(15, 2)
+  accountsReceivable       Decimal?  @map("accounts_receivable") @db.Decimal(12, 2)
+  accountsPayable          Decimal?  @map("accounts_payable") @db.Decimal(12, 2)
+  storeCountTotal          Int?      @map("store_count_total")
+  sameStoreSalesGrowthPct  Decimal?  @map("same_store_sales_growth_pct") @db.Decimal(5, 2)
+  createdAt                DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+
+  @@unique([tenantId, fiscalYear, fiscalQuarter])
+  @@index([tenantId], map: "idx_financials_tenant")
+  @@index([fiscalYear, fiscalQuarter], map: "idx_financials_period")
+  @@map("tenant_financials")
+}
+
+model TenantSales {
+  salesId                   String        @id @map("sales_id") @db.VarChar(20)
+  leaseId                   String        @map("lease_id") @db.VarChar(20)
+  tenantId                  String        @map("tenant_id") @db.VarChar(20)
+  mallId                    String        @map("mall_id") @db.VarChar(20)
+  reportingMonth            DateTime      @map("reporting_month") @db.Date
+  grossSales                Decimal?      @map("gross_sales") @db.Decimal(12, 2)
+  netSales                  Decimal?      @map("net_sales") @db.Decimal(12, 2)
+  returns                   Decimal?      @db.Decimal(10, 2)
+  discounts                 Decimal?      @db.Decimal(10, 2)
+  transactionCount          Int?          @map("transaction_count")
+  averageTransactionValue   Decimal?      @map("average_transaction_value") @db.Decimal(8, 2)
+  salesPerSquareFoot        Decimal?      @map("sales_per_square_foot") @db.Decimal(8, 2)
+  yearOverYearGrowthPct     Decimal?      @map("year_over_year_growth_pct") @db.Decimal(6, 2)
+  monthOverMonthGrowthPct   Decimal?      @map("month_over_month_growth_pct") @db.Decimal(6, 2)
+  percentageRentDue         Decimal?      @map("percentage_rent_due") @db.Decimal(10, 2)
+  baseRentPaid              Decimal?      @map("base_rent_paid") @db.Decimal(10, 2)
+  camChargesPaid            Decimal?      @map("cam_charges_paid") @db.Decimal(8, 2)
+  totalRentPaid             Decimal?      @map("total_rent_paid") @db.Decimal(12, 2)
+  paymentStatus             PaymentStatus @map("payment_status")
+  daysPastDue               Int           @default(0) @map("days_past_due")
+  createdAt                 DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+
+  lease  Lease  @relation(fields: [leaseId], references: [leaseId])
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId])
+  mall   Mall   @relation(fields: [mallId], references: [mallId])
+
+  @@unique([leaseId, reportingMonth])
+  @@index([leaseId], map: "idx_sales_lease")
+  @@index([reportingMonth], map: "idx_sales_month")
+  @@index([mallId], map: "idx_sales_mall")
+  @@index([paymentStatus], map: "idx_sales_payment_status")
+  @@map("tenant_sales")
+}
+
+model TrafficData {
+  trafficId                String          @id @map("traffic_id") @db.VarChar(20)
+  mallId                   String          @map("mall_id") @db.VarChar(20)
+  measurementDate          DateTime        @map("measurement_date") @db.Date
+  measurementType          MeasurementType @map("measurement_type")
+  visitorCount             Int?            @map("visitor_count")
+  uniqueVisitors           Int?            @map("unique_visitors")
+  repeatVisitors           Int?            @map("repeat_visitors")
+  averageDwellTimeMinutes  Int?            @map("average_dwell_time_minutes")
+  peakHourTraffic          Int?            @map("peak_hour_traffic")
+  weekendTrafficPct        Decimal?        @map("weekend_traffic_pct") @db.Decimal(5, 2)
+  conversionRate           Decimal?        @map("conversion_rate") @db.Decimal(5, 2)
+  parkingUtilizationPct    Decimal?        @map("parking_utilization_pct") @db.Decimal(5, 2)
+  entranceCountMain        Int?            @map("entrance_count_main")
+  entranceCountSecondary   Int?            @map("entrance_count_secondary")
+  weatherCondition         String?         @map("weather_condition") @db.VarChar(50)
+  specialEvent             Boolean         @default(false) @map("special_event")
+  eventDescription         String?         @map("event_description") @db.Text
+  createdAt                DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  
+  mall Mall @relation(fields: [mallId], references: [mallId])
+
+  @@unique([mallId, measurementDate, measurementType])
+  @@index([mallId], map: "idx_traffic_mall")
+  @@index([measurementDate], map: "idx_traffic_date")
+  @@map("traffic_data")
+}
+
+model OccupancyHistory {
+  occupancyId                        String   @id @map("occupancy_id") @db.VarChar(20)
+  mallId                             String   @map("mall_id") @db.VarChar(20)
+  reportingDate                      DateTime @map("reporting_date") @db.Date
+  totalUnits                         Int?     @map("total_units")
+  occupiedUnits                      Int?     @map("occupied_units")
+  vacantUnits                        Int?     @map("vacant_units")
+  occupancyRatePct                   Decimal? @map("occupancy_rate_pct") @db.Decimal(5, 2)
+  anchorOccupancyRatePct             Decimal? @map("anchor_occupancy_rate_pct") @db.Decimal(5, 2)
+  inlineOccupancyRatePct             Decimal? @map("inline_occupancy_rate_pct") @db.Decimal(5, 2)
+  occupiedSquareFeet                 Decimal? @map("occupied_square_feet") @db.Decimal(12, 2)
+  vacantSquareFeet                   Decimal? @map("vacant_square_feet") @db.Decimal(12, 2)
+  averageRentPsf                     Decimal? @map("average_rent_psf") @db.Decimal(8, 2)
+  tenantTurnoverCount                Int?     @map("tenant_turnover_count")
+  averageLeaseTermRemainingMonths    Int?     @map("average_lease_term_remaining_months")
+  leasesExpiring12months             Int?     @map("leases_expiring_12months")
+  leasesExpiring24months             Int?     @map("leases_expiring_24months")
+  createdAt                          DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  
+  mall Mall @relation(fields: [mallId], references: [mallId])
+
+  @@unique([mallId, reportingDate])
+  @@index([mallId], map: "idx_occupancy_mall")
+  @@index([reportingDate], map: "idx_occupancy_date")
+  @@map("occupancy_history")
+}
+
+model Loan {
+  loanId                  String       @id @map("loan_id") @db.VarChar(20)
+  mallId                  String       @map("mall_id") @db.VarChar(20)
+  lenderName              String?      @map("lender_name") @db.VarChar(200)
+  loanType                LoanType?    @map("loan_type")
+  loanAmount              Decimal?     @map("loan_amount") @db.Decimal(15, 2)
+  interestRate            Decimal?     @map("interest_rate") @db.Decimal(5, 4)
+  interestType            InterestType? @map("interest_type")
+  originationDate         DateTime?    @map("origination_date") @db.Date
+  maturityDate            DateTime?    @map("maturity_date") @db.Date
+  termMonths              Int?         @map("term_months")
+  loanToValueRatio        Decimal?     @map("loan_to_value_ratio") @db.Decimal(5, 2)
+  currentLtv              Decimal?     @map("current_ltv") @db.Decimal(5, 2)
+  debtServiceCoverageRatio Decimal?    @map("debt_service_coverage_ratio") @db.Decimal(5, 2)
+  prepaymentPenalty       Boolean      @default(false) @map("prepayment_penalty")
+  balloonPayment          Decimal?     @map("balloon_payment") @db.Decimal(15, 2)
+  loanStatus              LoanStatus   @map("loan_status")
+  covenantCompliance      Boolean      @default(true) @map("covenant_compliance")
+  covenantNotes           String?      @map("covenant_notes") @db.Text
+  createdAt               DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt               DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  mall Mall @relation(fields: [mallId], references: [mallId])
+  loanPayments LoanPayment[]
+
+  @@index([mallId], map: "idx_loans_mall")
+  @@index([loanStatus], map: "idx_loans_status")
+  @@map("loans")
+}
+
+model LoanPayment {
+  paymentId         String        @id @map("payment_id") @db.VarChar(20)
+  loanId            String        @map("loan_id") @db.VarChar(20)
+  paymentDate       DateTime      @map("payment_date") @db.Date
+  paymentDueDate    DateTime      @map("payment_due_date") @db.Date
+  principalPayment  Decimal?      @map("principal_payment") @db.Decimal(12, 2)
+  interestPayment   Decimal?      @map("interest_payment") @db.Decimal(12, 2)
+  totalPayment      Decimal?      @map("total_payment") @db.Decimal(12, 2)
+  outstandingBalance Decimal?     @map("outstanding_balance") @db.Decimal(15, 2)
+  paymentStatus     PaymentStatus @map("payment_status")
+  daysLate          Int           @default(0) @map("days_late")
+  lateFees          Decimal       @default(0) @map("late_fees") @db.Decimal(8, 2)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+
+  loan Loan @relation(fields: [loanId], references: [loanId])
+
+  @@map("loan_payments")
+}
+
+model OperatingExpenses {
+  expenseId              String   @id @map("expense_id") @db.VarChar(20)
+  mallId                 String   @map("mall_id") @db.VarChar(20)
+  expenseMonth           DateTime @map("expense_month") @db.Date
+  utilities              Decimal? @db.Decimal(10, 2)
+  maintenanceRepairs     Decimal? @map("maintenance_repairs") @db.Decimal(10, 2)
+  security               Decimal? @db.Decimal(8, 2)
+  landscaping            Decimal? @db.Decimal(6, 2)
+  janitorial             Decimal? @db.Decimal(8, 2)
+  marketingAdvertising   Decimal? @map("marketing_advertising") @db.Decimal(10, 2)
+  managementFees         Decimal? @map("management_fees") @db.Decimal(10, 2)
+  insurance              Decimal? @db.Decimal(8, 2)
+  propertyTax            Decimal? @map("property_tax") @db.Decimal(10, 2)
+  payroll                Decimal? @db.Decimal(12, 2)
+  otherExpenses          Decimal? @map("other_expenses") @db.Decimal(10, 2)
+  totalOperatingExpenses Decimal? @map("total_operating_expenses") @db.Decimal(15, 2)
+  noi                    Decimal? @db.Decimal(15, 2)
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  mall Mall @relation(fields: [mallId], references: [mallId])
+
+  @@unique([mallId, expenseMonth])
+  @@map("operating_expenses")
+}
+
+model MarketData {
+  marketId                        String   @id @map("market_id") @db.VarChar(20)
+  mallId                          String   @map("mall_id") @db.VarChar(20)
+  analysisDate                    DateTime @map("analysis_date") @db.Date
+  tradeAreaPopulation             Int?     @map("trade_area_population")
+  medianHouseholdIncome           Decimal? @map("median_household_income") @db.Decimal(10, 2)
+  unemploymentRate                Decimal? @map("unemployment_rate") @db.Decimal(5, 2)
+  retailSalesGrowthPct            Decimal? @map("retail_sales_growth_pct") @db.Decimal(5, 2)
+  competingCentersWithin5miles    Int?     @map("competing_centers_within_5miles")
+  competingCentersSquareFeet      Decimal? @map("competing_centers_square_feet") @db.Decimal(12, 2)
+  ecommercePenetrationPct         Decimal? @map("ecommerce_penetration_pct") @db.Decimal(5, 2)
+  marketVacancyRate               Decimal? @map("market_vacancy_rate") @db.Decimal(5, 2)
+  marketAverageRentPsf            Decimal? @map("market_average_rent_psf") @db.Decimal(8, 2)
+  demographicScore                Decimal? @map("demographic_score") @db.Decimal(3, 2)
+  accessibilityScore              Decimal? @map("accessibility_score") @db.Decimal(3, 2)
+  createdAt                       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  mall Mall @relation(fields: [mallId], references: [mallId])
+
+  @@map("market_data")
+}
+
+model RiskAssessment {
+  assessmentId              String              @id @map("assessment_id") @db.VarChar(20)
+  mallId                    String              @map("mall_id") @db.VarChar(20)
+  assessmentDate            DateTime            @map("assessment_date") @db.Date
+  overallRiskScore          Decimal?            @map("overall_risk_score") @db.Decimal(5, 2)
+  occupancyRiskScore        Decimal?            @map("occupancy_risk_score") @db.Decimal(5, 2)
+  tenantQualityScore        Decimal?            @map("tenant_quality_score") @db.Decimal(5, 2)
+  financialPerformanceScore Decimal?            @map("financial_performance_score") @db.Decimal(5, 2)
+  debtServiceRiskScore      Decimal?            @map("debt_service_risk_score") @db.Decimal(5, 2)
+  marketRiskScore           Decimal?            @map("market_risk_score") @db.Decimal(5, 2)
+  trafficTrendScore         Decimal?            @map("traffic_trend_score") @db.Decimal(5, 2)
+  tenantConcentrationRisk   Decimal?            @map("tenant_concentration_risk") @db.Decimal(5, 2)
+  leaseRolloverRisk         Decimal?            @map("lease_rollover_risk") @db.Decimal(5, 2)
+  anchorTenantHealthScore   Decimal?            @map("anchor_tenant_health_score") @db.Decimal(5, 2)
+  investmentGrade           InvestmentGrade?    @map("investment_grade")
+  recommendation            RecommendationType? @map("recommendation")
+  analystNotes              String?             @map("analyst_notes") @db.Text
+  createdAt                 DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
+
+  mall Mall @relation(fields: [mallId], references: [mallId])
+
+  @@map("risk_assessment")
+}
+

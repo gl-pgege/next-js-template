@@ -5,7 +5,8 @@ export const config = {
     isProduction: false,
   },
   database: {
-    blogs: "postgresql://postgres:postgres@localhost:5433/nextjs_dev?schema=public",
+    // Add your database URLs here
+    // Example: blogs: "postgresql://postgres:postgres@localhost:5432/blogs_db?schema=public",
   },
 } as const
 

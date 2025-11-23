@@ -17,7 +17,7 @@ A feature-based Next.js application with Prisma, TypeScript, and Tailwind CSS.
 ## Features
 
 - ✨ Feature-based architecture
-- 🗄️ Prisma ORM with PostgreSQL
+- 🗄️ Prisma ORM with multi-schema support
 - 🎨 Tailwind CSS v4
 - 📱 Responsive design with dark mode
 - 🔒 Type-safe with TypeScript
@@ -30,7 +30,7 @@ A feature-based Next.js application with Prisma, TypeScript, and Tailwind CSS.
 
 - Node.js 20+
 - Yarn 4.x
-- PostgreSQL database (local or hosted)
+- PostgreSQL database (for Prisma schemas)
 
 ### Setup
 
@@ -39,21 +39,29 @@ A feature-based Next.js application with Prisma, TypeScript, and Tailwind CSS.
 yarn install
 ```
 
-2. **Configure database URLs:**
-Edit `lib/databases.ts` with your database connection strings.
+2. **Add your Prisma schemas** (see "How to Add a New Database Schema" below)
 
-3. **Setup database:**
-```bash
-yarn db:push      # Push schema to database
-yarn db:seed      # Seed with sample data
-```
-
-4. **Start development:**
+3. **Start development:**
 ```bash
 yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
+
+## For AI/LLM Development
+
+See [LLM_DEVELOPMENT_PROMPT.md](./LLM_DEVELOPMENT_PROMPT.md) for a comprehensive guide tailored for AI assistants working with this repository. It covers:
+- Multi-schema Prisma database access patterns
+- How to check existing databases and add new ones
+- Server vs Client component patterns
+- Feature-based architecture rules
+- Complete workflow examples
+
+## Docker Example
+
+The `docker-example/` directory contains example files for deploying this template with Docker. **These files are not part of the main application** - they're provided as a reference for deployment elsewhere.
+
+See [docker-example/README.md](./docker-example/README.md) for details.
 
 ## Project Structure
 
@@ -309,6 +317,7 @@ const views = await analytics.pageView.findMany()
 ```
 
 **That's it!** Each database has its own schema and TypeScript types.
+
 
 ### Common Prisma Patterns
 

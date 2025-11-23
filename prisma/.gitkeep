@@ -1,0 +1,4 @@
+# Prisma schemas go here
+# Each database should have its own directory
+# Example: prisma/blogs/schema.prisma
+

@@ -135,3 +135,6 @@ This is an **example** for reference. You can:
 
 The core Next.js template works independently of these Docker files.
 
+
+
+

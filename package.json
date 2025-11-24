@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:render": "node scripts/test-render.js",
+    "test:build": "yarn build",
+    "test": "yarn build && yarn test:render"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -66,9 +69,11 @@
     "eslint-config-next": "16.0.3",
     "eslint-plugin-import": "^2.32.0",
     "prisma": "6.6.0",
+    "puppeteer": "^24.31.0",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "tw-animate-css": "^1.4.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.3"
   }
 }

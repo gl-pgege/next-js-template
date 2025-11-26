@@ -8,7 +8,6 @@ export default function Home() {
         <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
           Feature-based architecture with Prisma multi-schema support
         </p>
-        <p>{new Date()}</p>
       </main>
     </div>
   )
